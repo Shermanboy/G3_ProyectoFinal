@@ -6,13 +6,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @Entity
-@Table(
-        name = "detalles_carrito",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_detalle_carrito_producto",
-                columnNames = {"carrito_id", "producto_id"}
-        )
-)
+@Table(name = "detalles_carrito", uniqueConstraints = @UniqueConstraint(name = "uk_detalle_carrito_producto", columnNames = {
+        "carrito_id", "producto_id" }))
 public class DetalleCarrito {
 
     @Id

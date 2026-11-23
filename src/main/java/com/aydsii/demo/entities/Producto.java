@@ -21,11 +21,9 @@ public class Producto {
     public Producto() {
     }
 
-  
     public void sumarStock(int cantidad) {
         this.stockDisponible += cantidad;
     }
-
 
     public Long getIdProducto() {
         return idProducto;

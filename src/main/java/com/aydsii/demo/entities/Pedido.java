@@ -7,37 +7,51 @@ import java.util.List;
 @Entity
 @Table(name = "pedidos")
 public class Pedido {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPedido;
-
-    private String estado; 
+    private String estado;
     private Date fechaCreacion;
     private Double montoTotal;
-
-    // Relación de composición: Un pedido tiene muchos detalles
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cliente_id")
+    private Cliente cliente;
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
     private List<DetallePedido> detalles;
 
-    // Constructor 
-    public Pedido() {}
-
-   
-
-   public boolean puedeCancelarse() {
-    return this.estado.equalsIgnoreCase("Pendiente") || this.estado.equalsIgnoreCase("Aceptado");
-}
-
-    public void cancelar() {
-        if (puedeCancelarse()) {
-            this.estado = "Cancelado";
-        }
+    public Pedido() {
     }
 
-    
-    public Long getIdPedido() { return idPedido; }
-    public String getEstado() { return estado; }
-    public void setEstado(String estado) { this.estado = estado; }
-    public List<DetallePedido> getDetalles() { return detalles; }
+    public boolean puedeCancelarse() {
+        return estado != null && (estado.equalsIgnoreCase("Pendiente") || estado.equalsIgnoreCase("Aceptado"));
+    }
+
+    public void cancelar() {
+        if (puedeCancelarse())
+            estado = "Cancelado";
+    }
+
+    public Long getIdPedido() {
+        return idPedido;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public List<DetallePedido> getDetalles() {
+        return detalles;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
 }
