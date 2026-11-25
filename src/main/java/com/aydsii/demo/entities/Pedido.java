@@ -13,14 +13,9 @@ public class Pedido {
     private String estado;
     private Date fechaCreacion;
     private Double montoTotal;
-<<<<<<< HEAD
-
-    
-=======
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
->>>>>>> 5e60d16083854d2f2acdd3db79e0bba5734eb44e
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
     private List<DetallePedido> detalles;
 
