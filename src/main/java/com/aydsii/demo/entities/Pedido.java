@@ -16,7 +16,7 @@ public class Pedido {
     private Date fechaCreacion;
     private Double montoTotal;
 
-    // Relación de composición: Un pedido tiene muchos detalles
+    
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
     private List<DetallePedido> detalles;
 

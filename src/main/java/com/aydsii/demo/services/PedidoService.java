@@ -29,13 +29,13 @@ public class PedidoService {
             
             
             if (pedido.puedeCancelarse()) {
-                pedido.cancelar(); // Cambia el estado a "Cancelado"
+                pedido.cancelar(); 
                 
            
                 for (DetallePedido detalle : pedido.getDetalles()) {
                     Producto producto = detalle.getProducto();
                     producto.sumarStock(detalle.getCantidad());
-                    productoRepository.save(producto); // Actualizamos el stock en la DB
+                    productoRepository.save(producto); 
                 }
                 
               pedidoRepository.actualizarEstado(pedido.getIdPedido(), pedido.getEstado());
