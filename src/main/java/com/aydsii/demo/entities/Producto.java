@@ -22,7 +22,18 @@ public class Producto {
     }
 
     public void sumarStock(int cantidad) {
-        this.stockDisponible += cantidad;
+        this.stockDisponible = (this.stockDisponible == null ? 0 : this.stockDisponible) + cantidad;
+    }
+
+    public boolean hayStock(int cantidad) {
+        return cantidad > 0 && consultarDisponibilidad() >= cantidad;
+    }
+
+    public void reservarStock(int cantidad) {
+        if (!hayStock(cantidad)) {
+            throw new IllegalStateException("Stock insuficiente para el producto: " + this.idProducto);
+        }
+        this.stockDisponible -= cantidad;
     }
 
     public Long getIdProducto() {

@@ -58,6 +58,16 @@ public class Carrito {
         return true;
     }
 
+    public boolean estaVacio() {
+        return detalles == null || detalles.isEmpty();
+    }
+
+    public void vaciar() {
+        if (detalles != null) {
+            detalles.clear();
+        }
+    }
+
     public int cantidadDe(Producto producto) {
         DetalleCarrito detalle = buscarDetalle(producto);
         return detalle == null ? 0 : detalle.getCantidad();

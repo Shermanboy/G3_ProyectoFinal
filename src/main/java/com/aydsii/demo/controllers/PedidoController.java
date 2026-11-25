@@ -1,5 +1,8 @@
 package com.aydsii.demo.controllers;
 
+import com.aydsii.demo.dtos.PedidoResponse;
+import com.aydsii.demo.dtos.RealizarPedidoRequest;
+import com.aydsii.demo.entities.Pedido;
 import com.aydsii.demo.services.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,11 +15,21 @@ public class PedidoController {
     @Autowired
     private PedidoService pedidoService;
 
+    @PostMapping
+    public ResponseEntity<?> realizarPedido(@RequestBody RealizarPedidoRequest request) {
+        try {
+            Pedido pedido = pedidoService.realizarPedido(request.idCliente(), request.datosEntrega());
+            return ResponseEntity.status(201).body(PedidoResponse.from(pedido));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     // Método que agarra la petición delete para cancelar un pedido
     @DeleteMapping("/{idPedido}/cancelar")
     public ResponseEntity<String> cancelarPedido(@PathVariable Long idPedido) {
         boolean fueCancelado = pedidoService.cancelarPedido(idPedido);
-        
+
         if (fueCancelado) {
             return ResponseEntity.ok("Pedido cancelado exitosamente y stock devuelto.");
         } else {
