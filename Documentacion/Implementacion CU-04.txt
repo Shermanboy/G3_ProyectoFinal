@@ -1,0 +1,201 @@
+IMPLEMENTACION DEL CASO DE USO 04
+Realizar reclamo o devolucion
+Proyecto VerdeGreen - AYDS II
+
+1. OBJETIVO Y ALCANCE
+
+Este documento describe como se desarrollo el CU-04 en el proyecto Spring
+Boot, como se distribuyeron las responsabilidades entre las clases y como
+se incorporo el patron Simple Logging Facade.
+
+El caso permite que un cliente registre un reclamo o una solicitud de
+devolucion sobre uno de sus pedidos. La solicitud guarda tipo, motivo,
+descripcion, fecha, estado, cliente, pedido y los datos de una o mas
+evidencias.
+
+El flujo se diseño siguiendo los diagramas CU-04 estatico y dinamico de la
+carpeta Documentacion.
+
+2. MODELO DE DOMINIO Y RELACIONES
+
+Pedido
+- Se agrego la relacion ManyToOne con Cliente.
+- La columna de asociacion se llama cliente_id.
+- Permite buscar un pedido indicando al mismo tiempo el pedido y su dueno.
+
+Reclamo
+- Pertenece a un Cliente y a un Pedido.
+- Al crearse, registra fechaCreacion con la fecha y hora actuales.
+- Comienza con estado Pendiente.
+- Guarda tipo, motivo y descripcion.
+- Tiene una coleccion de Evidencia.
+
+Evidencia
+- Pertenece a un Reclamo.
+- Guarda nombreArchivo original y rutaArchivo almacenada en el servidor.
+- El archivo binario se almacena en el sistema de archivos; la base guarda
+  sus metadatos y ruta.
+
+La relacion de propiedad se valida con el metodo derivado de Spring Data:
+PedidoRepository.findByIdPedidoAndCliente_IdCliente(idPedido, idCliente).
+Si la consulta no encuentra coincidencia, el servicio no crea el reclamo.
+
+3. RECORRIDO DE LA PETICION
+
+Endpoint:
+POST /api/clientes/{idCliente}/pedidos/{idPedido}/reclamos
+
+Tipo de solicitud:
+multipart/form-data
+
+Secuencia de ejecucion:
+
+1. El cliente envia idCliente e idPedido en la ruta, y tipo, motivo,
+   descripcion y archivos como campos multipart.
+2. ReclamoController.realizarReclamo recibe los valores y llama a
+   ReclamoService.registrar(...).
+3. El servicio busca Cliente por idCliente. Si no existe, responde 404.
+4. El servicio busca Pedido por idPedido e idCliente asociados. Si el
+   pedido no existe o pertenece a otra cuenta, responde 404 y no registra
+   la solicitud.
+5. El servicio valida tipo, motivo, descripcion y archivos.
+6. Crea Reclamo relacionado con Cliente y Pedido, con estado Pendiente.
+7. Guarda cada archivo en la carpeta configurada y crea una entidad
+   Evidencia con su nombre original y ruta.
+8. Persiste Reclamo mediante ReclamoRepository y Evidencia mediante
+   EvidenciaRepository.
+9. Convierte el resultado a ReclamoResponse y el controller responde
+   201 Created.
+
+La operacion de base se ejecuta dentro de una transaccion JPA. El sistema
+de archivos no participa de la transaccion de base: si la base falla
+despues de copiar un archivo, ese archivo podria quedar sin registro y
+requerir limpieza manual.
+
+4. API Y EJEMPLO
+
+Campos del formulario:
+
+- tipo: obligatorio. Valores admitidos: RECLAMO o DEVOLUCION.
+- motivo: obligatorio, hasta 120 caracteres.
+- descripcion: obligatoria, hasta 2000 caracteres.
+- archivos: uno o mas archivos con extension JPG, JPEG, PNG o PDF.
+  Cada archivo admite hasta 5 MB.
+- Limite total configurado para la solicitud multipart: 10 MB.
+
+Ejemplo para PowerShell:
+
+curl.exe -X POST "http://localhost:8081/api/clientes/9001/pedidos/9003/reclamos" -F "tipo=DEVOLUCION" -F "motivo=Producto danado" -F "descripcion=La maceta llego con una fisura." -F "archivos=@foto.jpg"
+
+Respuesta exitosa aproximada:
+
+{
+  "id": 1,
+  "idPedido": 9003,
+  "tipo": "DEVOLUCION",
+  "motivo": "Producto danado",
+  "descripcion": "La maceta llego con una fisura.",
+  "fechaCreacion": "2026-11-23T14:30:00",
+  "estado": "Pendiente",
+  "evidencias": [
+    {
+      "id": 1,
+      "nombreArchivo": "foto.jpg",
+      "rutaArchivo": ".../uploads/evidencias/<nombre-aleatorio>.jpg"
+    }
+  ]
+}
+
+Codigos HTTP principales:
+
+- 201 Created: reclamo y evidencia registrados.
+- 400 Bad Request: campos incompletos, tipo no admitido, archivo vacio,
+  extension no admitida o tamano excedido.
+- 404 Not Found: cliente inexistente o pedido que no existe/no pertenece
+  al cliente.
+- 500 Internal Server Error: error al guardar el archivo.
+
+La validacion actual de formato se basa en la extension del nombre del
+archivo; no inspecciona el contenido binario para detectar archivos cuyo
+contenido no coincida con su extension.
+
+5. IMPLEMENTACION DE SIMPLE LOGGING FACADE
+
+Que problema resuelve
+---------------------
+El codigo de negocio necesita registrar eventos, pero no deberia depender
+directamente de una implementacion concreta del sistema de logging. Simple
+Logging Facade permite que la aplicacion use una interfaz comun y que la
+implementacion de salida se configure aparte.
+
+Como se aplico
+--------------
+1. ReclamoService importa org.slf4j.Logger y LoggerFactory.
+2. Crea su logger con LoggerFactory.getLogger(ReclamoService.class).
+3. Usa ese logger para registrar el exito y los fallos de almacenamiento.
+4. La aplicacion conecta SLF4J con Log4j2, que ya esta incluido en el
+   proyecto mediante spring-boot-starter-log4j2.
+5. La configuracion log4j2-spring.xml determina el nivel, formato,
+   consola y archivo de salida.
+
+Ejemplos conceptuales del codigo:
+
+Logger log = LoggerFactory.getLogger(ReclamoService.class);
+
+log.info("CU-04 registrado: reclamoId={}, clienteId={}, pedidoId={}, tipo={}",
+         reclamoId, clienteId, pedidoId, tipo);
+
+log.error("Fallo al almacenar evidencia ...", excepcion);
+
+El uso de parametros {} evita concatenar manualmente los valores. Se
+registran identificadores y tipo de solicitud; no se registra el motivo
+ni la descripcion del cliente.
+
+En resumen:
+- SLF4J es la fachada que usa ReclamoService.
+- Log4j2 es el backend que escribe los mensajes.
+- log4j2-spring.xml configura la salida.
+- La logica del caso de uso no queda acoplada a llamadas directas de
+  Log4j2.
+
+6. VALIDACIONES Y FLUJOS ALTERNATIVOS
+
+FA-01 - Datos incompletos
+- Si falta tipo, motivo o descripcion, se responde 400 con un mensaje
+  indicando el problema.
+- El reclamo no se persiste.
+
+FA-02 - Evidencia invalida
+- Si no hay archivos, un archivo esta vacio, excede 5 MB o su extension
+  no esta admitida, se responde 400.
+- No se registra la solicitud.
+
+FA-03 - Pedido no valido
+- La busqueda conjunta por idPedido e idCliente no encuentra el pedido.
+- Se responde 404 y no se registra el reclamo.
+
+7. CONFIGURACION DE ARCHIVOS Y BASE
+
+En application.properties se agregaron:
+
+spring.servlet.multipart.max-file-size=5MB
+spring.servlet.multipart.max-request-size=10MB
+app.evidencias.dir=uploads/evidencias
+
+La URL y credenciales de MySQL ya estaban configuradas para localhost,
+base demo y usuario root. No se modificaron ni se probo una conexion.
+
+8. AUTENTICACION Y LIMITE ACTUAL
+
+El proyecto todavia no implementa Spring Security. El endpoint recibe
+idCliente en la URL y comprueba que el pedido tenga ese cliente asociado,
+pero esa comprobacion no autentica a quien realiza la peticion.
+
+Cuando se incorpore autenticacion, el id de cliente debera obtenerse del
+usuario autenticado (principal o sesion), en lugar de confiar en un valor
+enviado en la ruta.
+
+9. VERIFICACION
+
+La implementacion Java se compilo con Maven y
+se realizaron pruebas con Swagger para confirmar el correcto uso de la implementacion.
