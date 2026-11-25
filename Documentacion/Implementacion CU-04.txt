@@ -87,7 +87,7 @@ Ejemplo para PowerShell:
 
 curl.exe -X POST "http://localhost:8081/api/clientes/9001/pedidos/9003/reclamos" -F "tipo=DEVOLUCION" -F "motivo=Producto danado" -F "descripcion=La maceta llego con una fisura." -F "archivos=@foto.jpg"
 
-Respuesta exitosa aproximada:
+Respuesta exitosa:
 
 {
   "id": 1,
