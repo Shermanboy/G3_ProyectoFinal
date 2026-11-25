@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 23-11-2026 a las 19:42:58
+-- Tiempo de generación: 25-11-2026 a las 23:44:01
 -- Versión del servidor: 10.11.16-MariaDB
 -- Versión de PHP: 8.3.36
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `demo`
 --
+CREATE DATABASE IF NOT EXISTS `demo` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `demo`;
 
 -- --------------------------------------------------------
 
@@ -38,8 +40,10 @@ CREATE TABLE `carritos` (
 
 INSERT INTO `carritos` (`id_carrito`, `cliente_id`) VALUES
 (1, 1),
-(2, 3),
-(9001, 9001);
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5);
 
 -- --------------------------------------------------------
 
@@ -59,9 +63,11 @@ CREATE TABLE `clientes` (
 --
 
 INSERT INTO `clientes` (`id_cliente`, `apellido`, `email`, `nombre`) VALUES
-(1, 'Perez', 'juan@email.com', 'Juan'),
-(3, 'Perez', 'juan2@email.com', 'Juan'),
-(9001, 'Gomez', 'lucia.demo@example.com', 'Lucia');
+(1, 'Pérez', 'ana.prueba@example.com', 'Ana'),
+(2, 'Díaz', 'bruno.prueba@example.com', 'Bruno'),
+(3, 'López', 'carla.prueba@example.com', 'Carla'),
+(4, 'Ruiz', 'diego.prueba@example.com', 'Diego'),
+(5, 'Molina', 'eva.prueba@example.com', 'Eva');
 
 -- --------------------------------------------------------
 
@@ -83,7 +89,9 @@ CREATE TABLE `detalles_carrito` (
 --
 
 INSERT INTO `detalles_carrito` (`id_detalle_carrito`, `cantidad`, `precio_unitario`, `subtotal`, `carrito_id`, `producto_id`) VALUES
-(9001, 2, 12500.00, 25000.00, 9001, 9001);
+(3, 1, 42000.00, 42000.00, 3, 3),
+(4, 1, 22000.00, 22000.00, 4, 4),
+(5, 1, 27000.00, 27000.00, 5, 5);
 
 -- --------------------------------------------------------
 
@@ -105,9 +113,9 @@ CREATE TABLE `detalles_pedido` (
 --
 
 INSERT INTO `detalles_pedido` (`id_detalle_pedido`, `cantidad`, `precio_unitario`, `subtotal`, `pedido_id`, `producto_id`) VALUES
-(9001, 1, 12500, 12500, 9001, 9001),
-(9002, 2, 12500, 25000, 9002, 9001),
-(9003, 1, 12500, 12500, 9003, 9001);
+(1, 1, 12500, 12500, 1, 1),
+(2, 1, 58000, 58000, 1, 2),
+(3, 1, 58000, 58000, 2, 2);
 
 -- --------------------------------------------------------
 
@@ -127,7 +135,7 @@ CREATE TABLE `evidencias` (
 --
 
 INSERT INTO `evidencias` (`id`, `nombre_archivo`, `ruta_archivo`, `reclamo_id`) VALUES
-(9001, 'foto-demo.jpg', 'uploads/evidencias/foto-demo.jpg', 9001);
+(1, 'images (1).jpg', 'C:\\xampp\\htdocs\\AYDS 2\\G3_ProyectoFinal\\uploads\\evidencias\\9c08342c-7872-4157-adaf-7952b61f46cd.jpg', 1);
 
 -- --------------------------------------------------------
 
@@ -140,18 +148,18 @@ CREATE TABLE `pedidos` (
   `estado` varchar(255) DEFAULT NULL,
   `fecha_creacion` datetime(6) DEFAULT NULL,
   `monto_total` double DEFAULT NULL,
-  `cliente_id` bigint(20) DEFAULT NULL
+  `cliente_id` bigint(20) DEFAULT NULL,
+  `codigo` varchar(255) DEFAULT NULL,
+  `datos_entrega` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `pedidos`
 --
 
-INSERT INTO `pedidos` (`id_pedido`, `estado`, `fecha_creacion`, `monto_total`, `cliente_id`) VALUES
-(1, 'PENDIENTE', NULL, NULL, NULL),
-(9001, 'Pendiente', '2026-11-23 14:38:00.000000', 12500, 9001),
-(9002, 'Pendiente', '2026-11-23 14:38:00.000000', 25000, 9001),
-(9003, 'Entregado', '2026-11-23 14:38:00.000000', 12500, 9001);
+INSERT INTO `pedidos` (`id_pedido`, `estado`, `fecha_creacion`, `monto_total`, `cliente_id`, `codigo`, `datos_entrega`) VALUES
+(1, 'Cancelado', '2026-11-25 19:31:40.000000', 70500, 1, 'VG-1002', 'Ana Pérez, Av. Siempreviva 742, Buenos Aires. Teléfono: 11-5555-1234'),
+(2, 'Pendiente', '2026-11-25 19:41:09.000000', 58000, 2, 'VG-1003', 'Soledad Maria, Av. Siempreviva 756, Buenos Aires. Teléfono: 11-4444-1234');
 
 -- --------------------------------------------------------
 
@@ -172,15 +180,11 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id_producto`, `nombre`, `stock_disponible`, `descripcion`, `precio_unitario`) VALUES
-(9001, 'Maceta reciclada', 20, 'Maceta de material recuperado', 12500.00),
-(9002, 'Compostera doméstica', 8, 'Compostera fabricada con plástico reciclado', 58000.00),
-(9003, 'Jardinera vertical', 12, 'Jardinera hecha con madera recuperada', 42000.00),
-(9004, 'Banco de jardín', 5, 'Banco de exterior construido con madera reciclada', 95000.00),
-(9005, 'Estante modular', 10, 'Estante para el hogar hecho con madera recuperada', 68000.00),
-(9006, 'Tabla de cocina', 15, 'Tabla artesanal de madera recuperada', 22000.00),
-(9007, 'Porta utensilios', 14, 'Organizador de cocina elaborado con madera recuperada', 18000.00),
-(9008, 'Set de macetas pequeñas', 20, 'Tres macetas fabricadas con plástico reciclado', 16000.00),
-(9009, 'Canasto tejido', 9, 'Canasto artesanal realizado con fibras reutilizadas', 27000.00);
+(1, 'Maceta reciclada', 20, 'Maceta de material recuperado', 12500.00),
+(2, 'Compostera doméstica', 7, 'Compostera para el hogar', 58000.00),
+(3, 'Jardinera vertical', 12, 'Jardinera de madera recuperada', 42000.00),
+(4, 'Tabla de cocina', 15, 'Tabla artesanal de madera recuperada', 22000.00),
+(5, 'Canasto tejido', 9, 'Canasto artesanal de fibras reutilizadas', 27000.00);
 
 -- --------------------------------------------------------
 
@@ -204,7 +208,7 @@ CREATE TABLE `reclamos` (
 --
 
 INSERT INTO `reclamos` (`id`, `tipo`, `motivo`, `descripcion`, `fecha_creacion`, `estado`, `cliente_id`, `pedido_id`) VALUES
-(9001, 'DEVOLUCION', 'Producto danado', 'La maceta llego con una fisura visible.', '2026-11-23 14:38:00.000000', 'Pendiente', 9001, 9003);
+(1, 'RECLAMO', 'Producto dañado', 'El producto llegó con una falla y no se puede utilizar.', '2026-11-25 19:41:14.000000', 'Pendiente', 2, 2);
 
 --
 -- Índices para tablas volcadas
@@ -276,49 +280,49 @@ ALTER TABLE `reclamos`
 -- AUTO_INCREMENT de la tabla `carritos`
 --
 ALTER TABLE `carritos`
-  MODIFY `id_carrito` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9002;
+  MODIFY `id_carrito` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `id_cliente` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9002;
+  MODIFY `id_cliente` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `detalles_carrito`
 --
 ALTER TABLE `detalles_carrito`
-  MODIFY `id_detalle_carrito` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9002;
+  MODIFY `id_detalle_carrito` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `detalles_pedido`
 --
 ALTER TABLE `detalles_pedido`
-  MODIFY `id_detalle_pedido` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9004;
+  MODIFY `id_detalle_pedido` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `evidencias`
 --
 ALTER TABLE `evidencias`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9002;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
-  MODIFY `id_pedido` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9004;
+  MODIFY `id_pedido` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
 --
 ALTER TABLE `productos`
-  MODIFY `id_producto` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9010;
+  MODIFY `id_producto` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `reclamos`
 --
 ALTER TABLE `reclamos`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9002;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Restricciones para tablas volcadas
