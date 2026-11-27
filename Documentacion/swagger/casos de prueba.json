@@ -1,0 +1,129 @@
+{
+  "CU-03": {
+    "FA-01": [
+      {
+        "id": "CP-CU03-FA01-01",
+        "nombre": "Intentar realizar un pedido con el carrito vacío",
+        "datos": {
+          "idCliente": 1,
+          "idCarrito": 1,
+          "productos": []
+        },
+        "resultadoEsperado": "El sistema impide realizar el pedido e informa que el carrito está vacío."
+      },
+      {
+        "id": "CP-CU03-FA01-02",
+        "nombre": "Intentar realizar un pedido con otro carrito vacío",
+        "datos": {
+          "idCliente": 2,
+          "idCarrito": 2,
+          "productos": []
+        },
+        "resultadoEsperado": "El sistema impide realizar el pedido e informa que el carrito está vacío."
+      }
+    ],
+    "FA-02": [
+      {
+        "id": "CP-CU03-FA02-01",
+        "nombre": "Intentar comprar un producto sin stock disponible",
+        "datos": {
+          "idCliente": 3,
+          "idCarrito": 3,
+          "idProducto": 3,
+          "cantidadSolicitada": 1,
+          "stockDisponible": 0
+        },
+        "resultadoEsperado": "El sistema impide realizar el pedido e informa que el producto no tiene stock disponible."
+      },
+      {
+        "id": "CP-CU03-FA02-02",
+        "nombre": "Intentar comprar una cantidad superior al stock disponible",
+        "datos": {
+          "idCliente": 4,
+          "idCarrito": 4,
+          "idProducto": 4,
+          "cantidadSolicitada": 2,
+          "stockDisponible": 1
+        },
+        "resultadoEsperado": "El sistema impide realizar el pedido e informa que la cantidad solicitada supera el stock disponible."
+      }
+    ],
+    "FA-03": [
+      {
+        "id": "CP-CU03-FA03-01",
+        "nombre": "Intentar realizar un pedido sin dirección de entrega",
+        "datos": {
+          "idCliente": 5,
+          "idCarrito": 5,
+          "direccionEntrega": null
+        },
+        "resultadoEsperado": "El sistema impide confirmar el pedido e informa que falta completar la dirección de entrega."
+      },
+      {
+        "id": "CP-CU03-FA03-02",
+        "nombre": "Intentar realizar un pedido sin teléfono de contacto",
+        "datos": {
+          "idCliente": 3,
+          "idCarrito": 3,
+          "telefono": null
+        },
+        "resultadoEsperado": "El sistema impide confirmar el pedido e informa que falta completar el teléfono de contacto."
+      }
+    ]
+  },
+  "CU-04": {
+    "FA-01": [
+      {
+        "id": "CP-CU04-FA01-01",
+        "nombre": "Intentar registrar un reclamo sin especificar el motivo",
+        "datos": {
+          "idCliente": 1,
+          "idPedido": 1,
+          "tipo": "RECLAMO",
+          "motivo": null,
+          "descripcion": "El producto llegó en malas condiciones."
+        },
+        "resultadoEsperado": "El sistema rechaza el registro e informa que el motivo es obligatorio."
+      },
+      {
+        "id": "CP-CU04-FA01-02",
+        "nombre": "Intentar registrar un reclamo sin descripción",
+        "datos": {
+          "idCliente": 1,
+          "idPedido": 1,
+          "tipo": "RECLAMO",
+          "motivo": "Producto defectuoso",
+          "descripcion": null
+        },
+        "resultadoEsperado": "El sistema rechaza el registro e informa que la descripción es obligatoria."
+      }
+    ],
+    "FA-03": [
+      {
+        "id": "CP-CU04-FA03-01",
+        "nombre": "Intentar registrar un reclamo sobre un pedido inexistente",
+        "datos": {
+          "idCliente": 1,
+          "idPedido": 9999,
+          "tipo": "RECLAMO",
+          "motivo": "Producto defectuoso",
+          "descripcion": "El producto presenta fallas."
+        },
+        "resultadoEsperado": "El sistema rechaza la operación e informa que el pedido no existe."
+      },
+      {
+        "id": "CP-CU04-FA03-02",
+        "nombre": "Intentar registrar un reclamo sobre un pedido de otro cliente",
+        "datos": {
+          "idCliente": 1,
+          "idPedido": 2,
+          "idClientePropietarioPedido": 2,
+          "tipo": "RECLAMO",
+          "motivo": "Producto defectuoso",
+          "descripcion": "El producto presenta fallas."
+        },
+        "resultadoEsperado": "El sistema rechaza la operación e informa que el pedido no pertenece al cliente autenticado."
+      }
+    ]
+  }
+}
