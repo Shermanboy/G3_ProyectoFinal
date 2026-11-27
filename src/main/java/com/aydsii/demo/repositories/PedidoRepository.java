@@ -5,9 +5,12 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
+import java.util.List;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     Optional<Pedido> findByIdPedidoAndCliente_IdCliente(Long idPedido, Long idCliente);
+
+    List<Pedido> findByCliente_IdCliente(Long idCliente);
 
     @Modifying
     @Transactional
